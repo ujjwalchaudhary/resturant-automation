@@ -5,7 +5,7 @@ import qrcode
 from io import BytesIO
 from PIL import Image
 
-# 1. Page Configuration
+# 1. Page Configuration  & twilio  - 2JR5NYSGDALQQL9LNNBF7XV4
 st.set_page_config(page_title="Spice Bistro | Smart Table", page_icon="🌶️")
 
 # Custom CSS for Mobile UI
