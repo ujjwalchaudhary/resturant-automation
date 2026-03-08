@@ -49,7 +49,7 @@ if st.button("View Menu & Get Discount"):
     if len(phone_number) >= 10:
         # --- THE AUTOMATION TRIGGER ---
         # Replace with your Make.com Webhook URL
-        WEBHOOK_URL = "https://hook.us1.make.com/your_unique_id" 
+        WEBHOOK_URL = "https://hook.eu1.make.com/4evyx4mx86pchmttab891addwpael1sk" 
         
         payload = {
             "phone": phone_number,
