@@ -3,12 +3,10 @@ import datetime
 import requests
 import qrcode
 from io import BytesIO
-from PIL import Image
 
-# 1. Page Configuration  & twilio  - 2JR5NYSGDALQQL9LNNBF7XV4
+# 1. Page Configuration & UI Styling
 st.set_page_config(page_title="Spice Bistro | Smart Table", page_icon="🌶️")
 
-# Custom CSS for Mobile UI
 st.markdown("""
     <style>
     .main { text-align: center; }
@@ -17,56 +15,65 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Capture Table ID from URL (?table=05)
+# 2. Auto-Detect Live URL for QR Generation
+try:
+    host = st.context.headers.get("host")
+    base_url = f"https://{host}/"
+except:
+    base_url = "https://resturant-automation-zbwvcoadgdhtzcajjydhe.streamlit.app/"
+
+# 3. Capture Table ID from URL (?table=05)
 query_params = st.query_params
 table_id = query_params.get("table", "Walk-in")
 
-# 3. Sidebar for QR Generation (Your Internal Tool)
+# 4. Admin Sidebar: Table QR Generator
 with st.sidebar:
-    st.header("Admin: Generate Table QR")
+    st.header("Admin: Print Table QRs")
     new_table = st.text_input("Enter Table Number", value="05")
-    if st.button("Generate QR for Printing"):
-        # Create URL for this specific table
-        base_url = "https://resturant-automation-zbwvcoadgdhtzcajjjydhe.streamlit.app/" # UPDATE THIS TO YOUR LIVE URL
-        target_url = f"{base_url}?table={new_table}"
-        
-        # Generate QR
-        qr = qrcode.make(target_url)
-        buf = BytesIO()
-        qr.save(buf, format="PNG")
-        st.image(buf, caption=f"QR for Table {new_table}")
-        st.write(f"URL: {target_url}")
+    target_url = f"{base_url}?table={new_table}"
+    
+    qr = qrcode.make(target_url)
+    buf = BytesIO()
+    qr.save(buf, format="PNG")
+    st.image(buf, caption=f"Scan for Table {new_table}")
+    st.code(target_url)
 
-# 4. Main Customer UI
+# 5. Customer Interface
 st.title("Spice Bistro 🌶️")
 st.subheader(f"Table: {table_id}")
 
-st.write("Enter your WhatsApp number to view our **Digital Menu** and get an instant **10% Discount Coupon**.")
+st.write("Enter your WhatsApp number to view our **Digital Menu** and get an instant **10% Discount**.")
 
 phone_number = st.text_input("WhatsApp Number", placeholder="91XXXXXXXXXX")
 
 if st.button("View Menu & Get Discount"):
     if len(phone_number) >= 10:
         # --- THE AUTOMATION TRIGGER ---
-        # Replace with your Make.com Webhook URL
+        # Update this with your Make.com Webhook URL
         WEBHOOK_URL = "https://hook.eu1.make.com/4evyx4mx86pchmttab891addwpael1sk" 
         
+        # Update with actual Restaurant Details
+        RESTAURANT_UPI = "9958193633@ptsbi" # Example UPI ID
+        RESTAURANT_NAME = "Spice Bistro"
+
+        # Constructing the Payload with Payment Link
         payload = {
             "phone": phone_number,
             "table": table_id,
             "timestamp": str(datetime.datetime.now()),
-            "status": "intent_captured"
+            "status": "intent_captured",
+            "upi_link": f"upi://pay?pa={RESTAURANT_UPI}&pn={RESTAURANT_NAME}&am=0&cu=INR&tn=Table_{table_id}"
         }
         
         try:
-            # This sends the data to your "Agent"
+            # Send data to Make.com Agent
             requests.post(WEBHOOK_URL, json=payload, timeout=5)
-            st.success("✅ Access Granted! Check WhatsApp for your coupon.")
+            st.success("✅ Access Granted! Check WhatsApp for your Menu & Payment Link.")
         except:
-            # Fallback if webhook isn't set up yet
-            st.warning("Connected! Menu loading...")
+            st.warning("Connecting to Automation... Opening Menu now.")
 
         st.info("Opening Digital Menu...")
+        # Replace with the actual URL of your Menu (PDF/Image)
         st.markdown("[👉 Click here to open Digital Menu](https://your-menu-link.com)")
     else:
-        st.error("Please enter a valid 10-digit number.")
+        st.error("Please enter a valid 10-digit phone number.")
