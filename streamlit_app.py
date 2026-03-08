@@ -27,7 +27,7 @@ with st.sidebar:
     new_table = st.text_input("Enter Table Number", value="05")
     if st.button("Generate QR for Printing"):
         # Create URL for this specific table
-        base_url = "https://your-app-name.streamlit.app/" # UPDATE THIS TO YOUR LIVE URL
+        base_url = "https://resturant-automation-zbwvcoadgdhtzcajjjydhe.streamlit.app/" # UPDATE THIS TO YOUR LIVE URL
         target_url = f"{base_url}?table={new_table}"
         
         # Generate QR
